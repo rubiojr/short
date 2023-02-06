@@ -2,15 +2,22 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 
-	"github.com/didip/shawty/storages"
+	"github.com/rubiojr/short/storages"
 )
 
 func EncodeHandler(storage storages.IStorage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
 		if url := r.PostFormValue("url"); url != "" {
-			w.Write([]byte(storage.Save(url)))
+			code, err := storage.Save(url)
+			if err != nil {
+				return
+			}
+			rurl := fmt.Sprintf("%s/red/%s", os.Getenv("SHORT_BASE_URL"), code)
+			w.Write([]byte(rurl))
 		}
 	}
 
