@@ -9,6 +9,9 @@ import (
 	"github.com/rubiojr/short/storages"
 )
 
+const DecodeHPath = "/d/"
+const RedirectHPath = "/r/"
+
 func EncodeHandler(storage storages.IStorage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
 		if url := r.PostFormValue("url"); url != "" {
@@ -16,7 +19,7 @@ func EncodeHandler(storage storages.IStorage) http.Handler {
 			if err != nil {
 				return
 			}
-			rurl := fmt.Sprintf("%s/red/%s", os.Getenv("SHORT_BASE_URL"), code)
+			rurl := fmt.Sprintf("%s%s%s", os.Getenv("SHORT_BASE_URL"), RedirectHPath, code)
 			w.Write([]byte(rurl))
 		}
 	}
@@ -26,7 +29,7 @@ func EncodeHandler(storage storages.IStorage) http.Handler {
 
 func DecodeHandler(storage storages.IStorage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
-		code := r.URL.Path[len("/dec/"):]
+		code := r.URL.Path[len(DecodeHPath):]
 
 		url, err := storage.Load(code)
 		if err != nil {
@@ -43,7 +46,7 @@ func DecodeHandler(storage storages.IStorage) http.Handler {
 
 func RedirectHandler(storage storages.IStorage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
-		code := r.URL.Path[len("/red/"):]
+		code := r.URL.Path[len(RedirectHPath):]
 
 		url, err := storage.Load(code)
 		if err != nil {
